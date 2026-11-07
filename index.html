@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Darul Fath Prayer Times</title>
+<meta name="description" content="Darul Fath Hamilton Trust prayer start and jamaat times for Baytul Ihsaan and The Hamilton Hub, Leicester.">
+<meta name="theme-color" content="#1E5A41">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Prayer Times">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Reem+Kufi:wght@500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column — live "now" card, day sheet with prev/next, tappable month grid, Jumu'ah + venues */
+:root {
+  --bg: #F0F3F0;
+  --surface: #FFFFFF;
+  --ink: #13201A;
+  --muted: #5A6A62;
+  --line: #DCE3DE;
+  --accent: #1E5A41;
+  --accent-soft: #E2EDE6;
+  --brass: #94701F;
+  --hero-bg: #1E5A41;
+  --hero-ink: #F2F7F3;
+  --hero-muted: #B3CFBF;
+  --hero-chip: rgba(255,255,255,.10);
+  --hero-line: rgba(255,255,255,.18);
+  --shadow: 0 1px 2px rgba(19,32,26,.10);
+  --font-display: "Reem Kufi", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1411; --surface: #151F1A; --ink: #E6EEE9; --muted: #90A198; --line: #25322B;
+    --accent: #72C49A; --accent-soft: #1A2E23; --brass: #D3AE5E;
+    --hero-bg: #173828; --hero-ink: #EAF3ED; --hero-muted: #98C0AA;
+    --hero-chip: rgba(255,255,255,.06); --hero-line: rgba(255,255,255,.12);
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1411; --surface: #151F1A; --ink: #E6EEE9; --muted: #90A198; --line: #25322B;
+  --accent: #72C49A; --accent-soft: #1A2E23; --brass: #D3AE5E;
+  --hero-bg: #173828; --hero-ink: #EAF3ED; --hero-muted: #98C0AA;
+  --hero-chip: rgba(255,255,255,.06); --hero-line: rgba(255,255,255,.12);
+  --shadow: 0 1px 2px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 560px; margin: 0 auto;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px;
+}
+button { font: inherit; }
+button:focus-visible, [tabindex]:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Header */
+.top { display: flex; align-items: center; gap: 12px; }
+.mark { flex: none; width: 30px; height: 30px; position: relative; }
+.mark::before, .mark::after { content: ""; position: absolute; inset: 5px; border: 2px solid var(--accent); border-radius: 2px; }
+.mark::after { transform: rotate(45deg); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.55em; line-height: 1.1; margin: 0; }
+.sub { margin: 2px 0 0; color: var(--muted); font-size: .85em; }
+
+/* Times */
+.t { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.t small { font-size: .72em; color: var(--muted); margin-left: 1px; font-weight: 400; }
+.note { display: block; font-size: .72em; color: var(--muted); margin-top: 1px; font-weight: 400; }
+
+/* Now card */
+.now { background: var(--hero-bg); color: var(--hero-ink); border-radius: 18px; padding: 20px 18px 18px; position: relative; overflow: hidden; }
+.star { position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; opacity: .14; pointer-events: none; }
+.star::before, .star::after { content: ""; position: absolute; inset: 28px; border: 1.5px solid var(--hero-ink); }
+.star::after { transform: rotate(45deg); }
+.inner { position: relative; }
+.eyebrow { margin: 0; font-size: .72em; text-transform: uppercase; letter-spacing: .12em; color: var(--hero-muted); font-weight: 500; }
+.now-main { display: flex; align-items: baseline; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+.now-main h2 { font-family: var(--font-display); font-size: 2.7em; line-height: 1; margin: 0; font-weight: 600; }
+.now-main .ar { font-family: var(--font-display); font-size: 1.45em; color: var(--hero-muted); }
+.now-meta { margin: 8px 0 0; font-size: 1.08em; }
+.now .t small, .now .note { color: var(--hero-muted); }
+.lbl { margin: 14px 0 6px; font-size: .72em; text-transform: uppercase; letter-spacing: .12em; color: var(--hero-muted); }
+.jam { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+.chip { background: var(--hero-chip); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.chip .v { font-size: .76em; color: var(--hero-muted); }
+.chip .ct { font-size: 1.3em; }
+.chip .ct .t { font-weight: 600; }
+.chip .in { font-size: .8em; color: var(--hero-muted); }
+.chip.past { opacity: .5; }
+.foot { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--hero-line); font-size: .95em; }
+.foot b { font-weight: 600; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.day { scroll-margin-top: 12px; }
+.day-head { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 4px; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+.navbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 1.25em; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+.navbtn:disabled { opacity: .3; cursor: default; }
+.day-title { text-align: center; min-width: 0; }
+.day-title h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.18em; text-wrap: balance; }
+.day-title p { margin: 2px 0 0; font-size: .8em; color: var(--muted); }
+.day-tags { display: flex; justify-content: center; gap: 6px; margin-top: 6px; }
+.tag { font-size: .7em; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; padding: 3px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.tag-btn { border: 1px solid var(--line); background: transparent; color: var(--accent); cursor: pointer; text-transform: none; letter-spacing: 0; font-size: .78em; font-weight: 500; padding: 4px 10px; border-radius: 99px; }
+
+.tbl { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.times th { font-size: .68em; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; text-align: right; padding: 8px 10px 4px; vertical-align: bottom; line-height: 1.25; }
+.times thead tr:first-child th { padding-top: 10px; padding-bottom: 0; }
+.times th.grp { text-align: center; color: var(--accent); }
+.times td { padding: 11px 10px; border-top: 1px solid var(--line); text-align: right; vertical-align: top; }
+.times th:first-child, .times td:first-child { text-align: left; padding-left: 14px; }
+.times th:last-child, .times td:last-child { padding-right: 14px; }
+.times td div + div { margin-top: 6px; }
+.pname { display: block; font-family: var(--font-display); font-weight: 600; font-size: 1.08em; line-height: 1.15; }
+.par { display: block; font-family: var(--font-display); font-size: .82em; color: var(--muted); text-align: left; }
+.times td.span { text-align: center; color: var(--muted); font-size: .88em; }
+.times td.span .t { color: var(--ink); font-size: 1.14em; }
+.times td.dash { color: var(--muted); }
+.times tr.sunrise .pname { font-weight: 500; color: var(--muted); }
+.times tr.past td { opacity: .42; }
+.times tr.current td { background: var(--accent-soft); }
+.times tr.current td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.times tr.current .pname { color: var(--accent); }
+
+/* Month grid */
+.month-head { padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+.month-head h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.12em; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { border: 0; background: transparent; color: var(--muted); font-size: .82em; padding: 7px 4px; border-radius: 7px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
+.grid { font-size: .86em; }
+.grid th { font-size: .7em; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; padding: 8px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+.grid td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; }
+.grid tbody tr:first-child td { border-top: 0; }
+.grid th:first-child, .grid td:first-child { text-align: left; padding-left: 14px; }
+.grid th:last-child, .grid td:last-child { padding-right: 14px; }
+.grid tbody tr { cursor: pointer; }
+.grid tbody tr:hover td { background: var(--bg); }
+.grid .dn { display: inline-block; width: 2.3em; color: var(--muted); }
+.grid .dn.fri { color: var(--brass); font-weight: 600; }
+.grid td.chg { font-weight: 700; }
+.grid td.jum { color: var(--brass); font-weight: 600; }
+.grid tr.is-today td { background: var(--accent-soft); }
+.grid tr.is-today td:first-child { font-weight: 600; }
+.grid tr.is-sel td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.legend { padding: 10px 14px 14px; font-size: .78em; color: var(--muted); display: flex; gap: 6px 14px; flex-wrap: wrap; border-top: 1px solid var(--line); }
+.legend b { color: var(--ink); }
+.legend .g { color: var(--brass); font-weight: 600; }
+
+/* Info */
+.pad { padding: 16px 14px; }
+.pad h3 { margin: 0 0 10px; font-family: var(--font-display); font-weight: 600; font-size: 1.12em; }
+.jlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.jlist li { display: grid; grid-template-columns: 2.6em 5.2em 1fr; align-items: baseline; gap: 8px; }
+.jlist .o { color: var(--brass); font-weight: 600; font-size: .85em; }
+.jlist .t { font-size: 1.1em; }
+.jlist .w { color: var(--muted); min-width: 0; }
+.venues { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 440px) { .venues { grid-template-columns: 1fr; } }
+.venue h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 600; font-size: 1.05em; }
+.venue .abbr { font-size: .72em; letter-spacing: .1em; color: var(--muted); font-weight: 500; text-transform: uppercase; }
+.venue p { margin: 0; color: var(--muted); font-size: .9em; }
+.venue a { display: inline-block; margin-top: 8px; color: var(--accent); font-weight: 500; font-size: .9em; text-decoration: none; }
+.venue a:hover { text-decoration: underline; }
+.notes { margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: .86em; display: grid; gap: 4px; }
+.src { margin: 4px 0 0; color: var(--muted); font-size: .78em; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+
+/* Install card */
+.install { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.install-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.install-txt b { font-weight: 600; }
+.install-txt span { color: var(--muted); font-size: .86em; }
+.install button { flex: none; border: 0; border-radius: 99px; padding: 9px 16px; background: var(--accent); color: var(--surface); font-weight: 600; cursor: pointer; }
+@media (display-mode: standalone) { .install { display: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark" aria-hidden="true"></div>
+    <div>
+      <h1>Darul Fath</h1>
+      <p class="sub">Hamilton Trust · Leicester · November 2026</p>
+    </div>
+  </header>
+
+  <div class="install" id="install" hidden>
+    <div class="install-txt">
+      <b>Add to your home screen</b>
+      <span id="installHint">Opens like an app and works without signal</span>
+    </div>
+    <button id="installBtn" hidden>Install</button>
+  </div>
+
+  <section class="now" id="now" aria-live="polite"></section>
+
+  <section class="card day" id="day">
+    <div class="day-head">
+      <button class="navbtn" id="prev" aria-label="Previous day">‹</button>
+      <div class="day-title">
+        <h3 id="dayTitle">November</h3>
+        <p id="dayHijri"></p>
+        <div class="day-tags">
+          <span class="tag" id="dayTag" hidden>Today</span>
+          <button class="tag-btn" id="todayBtn" hidden>Back to today</button>
+        </div>
+      </div>
+      <button class="navbtn" id="next" aria-label="Next day">›</button>
+    </div>
+    <div class="tbl">
+      <table class="times">
+        <thead>
+          <tr><th></th><th></th><th class="grp" colspan="2">Jamaat</th></tr>
+          <tr><th>Prayer</th><th>Starts</th><th>Baytul Ihsaan</th><th>Hamilton Hub</th></tr>
+        </thead>
+        <tbody id="dayBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card month">
+    <div class="month-head">
+      <h3>November at a glance</h3>
+      <div class="seg" id="seg">
+        <button id="m-s" data-m="s" aria-pressed="true">Start times</button>
+        <button id="m-bi" data-m="bi" aria-pressed="false">Baytul Ihsaan</button>
+        <button id="m-thh" data-m="thh" aria-pressed="false">Hamilton Hub</button>
+      </div>
+    </div>
+    <div class="tbl">
+      <table class="grid">
+        <thead><tr><th>Date</th><th>Fajr</th><th>Sunrise</th><th>Zuhr</th><th>Asr</th><th>Maghrib</th><th>Isha</th></tr></thead>
+        <tbody id="monthBody"></tbody>
+      </table>
+    </div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="card pad">
+    <h3>Jumu'ah</h3>
+    <ol class="jlist">
+      <li><span class="o">1st</span><span class="t">12:30<small>pm</small></span><span class="w">The Hamilton Hub</span></li>
+      <li><span class="o">2nd</span><span class="t">1:00<small>pm</small></span><span class="w">Baytul Ihsaan</span></li>
+      <li><span class="o">3rd</span><span class="t">1:10<small>pm</small></span><span class="w">The Hamilton Hub</span></li>
+    </ol>
+  </section>
+
+  <section class="venues">
+    <article class="card pad venue">
+      <h4>Baytul Ihsaan</h4>
+      <p>202 Sandhills Avenue, LE5 1PL</p>
+      <p>Facilities for men and women</p>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=Baytul+Ihsaan+202+Sandhills+Avenue+Leicester+LE5+1PL" target="_blank" rel="noopener">Open in Maps ↗</a>
+    </article>
+    <article class="card pad venue">
+      <h4>The Hamilton Hub</h4>
+      <p>Unit 1 Kestrel Lane, LE5 1BJ</p>
+      <p>No women's facilities</p>
+      <a href="https://www.google.com/maps/search/?api=1&amp;query=The+Hamilton+Hub+Unit+1+Kestrel+Lane+Leicester+LE5+1BJ" target="_blank" rel="noopener">Open in Maps ↗</a>
+    </article>
+  </section>
+
+  <ul class="notes">
+    <li>Subject to moon sighting. Jamaat times can change at short notice, so check Darul Fath for exact times and Islamic dates.</li>
+    <li>Zawal is 10 minutes before Zuhr starts.</li>
+    <li>Please park responsibly and follow parking rules.</li>
+  </ul>
+  <p class="src">From the Darul Fath Hamilton Trust timetable for November 2026 · Jumad al Awwal / Jumad al Thani 1448</p>
+</div>
+
+<script>
+(function () {
+  // date fajrStart fajrBI fajrTHH sunrise zuhrStart zuhrBI zuhrTHH asrStart asrBI asrTHH maghrib ishaStart ishaBI ishaTHH
+  const RAW = `
+1 5:21 6:00 6:15 7:01 11:53 1:00 1:15 2:46 3:30 3:45 4:39 6:05 8:00 8:15
+2 5:23 6:15 6:30 7:03 11:53 12:45 1:00 2:46 3:15 3:30 4:38 6:04 8:15 8:30
+3 5:24 6:15 6:30 7:04 11:53 12:45 1:00 2:43 3:15 3:30 4:36 6:03 8:15 8:30
+4 5:25 6:15 6:30 7:06 11:53 12:45 1:00 2:42 3:15 3:30 4:34 6:01 8:15 8:30
+5 5:27 6:15 6:30 7:08 11:53 12:45 1:00 2:40 3:15 3:30 4:32 6:00 8:15 8:30
+6 5:29 6:15 6:30 7:10 11:53 12:30 1:00 2:39 3:15 3:30 4:30 5:58 8:15 8:30
+7 5:30 6:15 6:30 7:12 11:53 12:45 1:00 2:37 3:15 3:30 4:29 5:58 6:30 8:30
+8 5:32 6:15 6:30 7:14 11:53 12:45 1:00 2:35 3:15 3:30 4:27 5:56 6:30 8:30
+9 5:34 6:30 6:45 7:16 11:53 12:45 1:00 2:33 3:00 3:15 4:25 5:55 8:15 8:30
+10 5:34 6:30 6:45 7:17 11:53 12:45 1:00 2:32 3:00 3:15 4:24 5:54 8:15 8:30
+11 5:36 6:30 6:45 7:19 11:53 12:45 1:00 2:30 3:00 3:15 4:22 5:52 8:15 8:30
+12 5:38 6:30 6:45 7:21 11:53 12:45 1:00 2:28 3:00 3:15 4:20 5:50 8:15 8:30
+13 5:39 6:30 6:45 7:23 11:54 12:30 1:00 2:27 3:00 3:15 4:19 5:50 8:15 8:30
+14 5:41 6:30 6:45 7:25 11:54 12:45 1:00 2:25 3:00 3:15 4:17 5:48 6:15 8:30
+15 5:42 6:30 6:45 7:26 11:54 12:45 1:00 2:24 3:00 3:15 4:16 5:47 6:15 8:30
+16 5:43 6:45 7:00 7:28 11:54 12:45 1:00 2:23 3:00 3:15 4:14 5:45 8:15 8:30
+17 5:45 6:45 7:00 7:30 11:54 12:45 1:00 2:22 3:00 3:15 4:13 5:45 8:15 8:30
+18 5:47 6:45 7:00 7:32 11:55 12:45 1:00 2:21 3:00 3:15 4:12 5:44 8:15 8:30
+19 5:48 6:45 7:00 7:33 11:54 12:45 1:00 2:19 3:00 3:15 4:10 5:42 8:15 8:30
+20 5:50 6:45 7:00 7:35 11:55 12:30 1:00 2:18 3:00 3:15 4:09 5:41 8:15 8:30
+21 5:52 6:45 7:00 7:37 11:55 12:45 1:00 2:17 3:00 3:15 4:08 5:41 6:15 8:30
+22 5:54 6:45 7:00 7:39 11:56 12:45 1:00 2:16 3:00 3:15 4:07 5:40 6:15 8:30
+23 5:55 6:45 7:00 7:40 11:56 12:45 1:00 2:15 2:45 3:00 4:06 5:39 8:15 8:30
+24 5:57 6:45 7:00 7:42 11:56 12:45 1:00 2:14 2:45 3:00 4:05 5:38 8:15 8:30
+25 5:58 6:45 7:00 7:43 11:56 12:45 1:00 2:13 2:45 3:00 4:04 5:38 8:15 8:30
+26 6:00 6:45 7:00 7:45 11:57 12:45 1:00 2:12 2:45 3:00 4:03 5:37 8:15 8:30
+27 6:02 6:45 7:00 7:47 11:57 12:30 1:00 2:11 2:45 3:00 4:02 5:36 8:15 8:30
+28 6:03 6:45 7:00 7:48 11:57 12:45 1:00 2:10 2:45 3:00 4:01 5:35 6:15 8:30
+29 6:05 6:45 7:00 7:50 11:58 12:45 1:00 2:09 2:45 3:00 4:00 5:35 6:15 8:30
+30 6:06 6:45 7:00 7:51 11:58 12:45 1:00 2:08 2:45 3:00 3:59 5:34 8:15 8:30
+`;
+  const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const WDL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const $ = s => document.querySelector(s);
+
+  // Times after sunrise are afternoon/evening unless they read 11:xx or 12:xx
+  const toMin = (s, pm) => { let [h, m] = s.split(':').map(Number); if (pm && h < 11) h += 12; return h * 60 + m; };
+
+  const DAYS = RAW.trim().split('\n').map(line => {
+    const f = line.trim().split(/\s+/);
+    const d = +f[0];
+    const wd = new Date(2026, 10, d).getDay();
+    return {
+      d, wd, fri: wd === 5,
+      fajr: { s: toMin(f[1]), bi: toMin(f[2]), thh: toMin(f[3]) },
+      sunrise: toMin(f[4]),
+      zuhr: { s: toMin(f[5], 1), bi: toMin(f[6], 1), thh: toMin(f[7], 1) },
+      asr: { s: toMin(f[8], 1), bi: toMin(f[9], 1), thh: toMin(f[10], 1) },
+      maghrib: toMin(f[11], 1),
+      isha: { s: toMin(f[12], 1), bi: toMin(f[13], 1), thh: toMin(f[14], 1) }
+    };
+  });
+
+  const JUM = { bi: [{ t: 780, o: '2nd' }], thh: [{ t: 750, o: '1st' }, { t: 790, o: '3rd' }] };
+
+  const hijri = d => d <= 10 ? `${d + 20} Jumad al Awwal 1448` : `${d - 10} Jumad al Thani 1448`;
+  const parts = min => { const h24 = Math.floor(min / 60) % 24, m = min % 60; return { h: h24 % 12 || 12, m: String(m).padStart(2, '0'), s: h24 >= 12 ? 'pm' : 'am' }; };
+  const fmtH = min => { const p = parts(min); return `<span class="t">${p.h}:${p.m}<small>${p.s}</small></span>`; };
+  const fmtT = min => { const p = parts(min); return `${p.h}:${p.m}${p.s}`; };
+  const fmtC = min => { const p = parts(min); return `${p.h}:${p.m}`; };
+  const dur = mins => { mins = Math.max(1, Math.ceil(mins)); const h = Math.floor(mins / 60), m = mins % 60; return h ? `${h}h ${m}m` : `${m} min`; };
+
+  function prayers(day) {
+    const L = v => [{ t: v }];
+    const z = day.fri
+      ? { k: 'zuhr', n: "Jumu'ah", ar: 'الجمعة', s: day.zuhr.s, bi: JUM.bi, thh: JUM.thh, zawal: day.zuhr.s - 10 }
+      : { k: 'zuhr', n: 'Zuhr', ar: 'الظهر', s: day.zuhr.s, bi: L(day.zuhr.bi), thh: L(day.zuhr.thh), zawal: day.zuhr.s - 10 };
+    return [
+      { k: 'fajr', n: 'Fajr', ar: 'الفجر', s: day.fajr.s, bi: L(day.fajr.bi), thh: L(day.fajr.thh) },
+      { k: 'sunrise', n: 'Sunrise', ar: 'الشروق', s: day.sunrise },
+      z,
+      { k: 'asr', n: 'Asr', ar: 'العصر', s: day.asr.s, bi: L(day.asr.bi), thh: L(day.asr.thh) },
+      { k: 'maghrib', n: 'Maghrib', ar: 'المغرب', s: day.maghrib, both: day.maghrib },
+      { k: 'isha', n: 'Isha', ar: 'العشاء', s: day.isha.s, bi: L(day.isha.bi), thh: L(day.isha.thh) }
+    ];
+  }
+
+  function todayInfo() {
+    const now = new Date();
+    if (now.getFullYear() !== 2026 || now.getMonth() !== 10) return { idx: -1, now };
+    const idx = now.getDate() - 1;
+    const mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+    const P = prayers(DAYS[idx]);
+    let ci = -1;
+    P.forEach((p, i) => { if (p.s <= mins) ci = i; });
+    return { idx, now, mins, P, ci };
+  }
+
+  let T = todayInfo();
+  let sel = T.idx >= 0 ? T.idx : (T.now < new Date(2026, 10, 1) ? 0 : 29);
+  let mode = 's';
+  try { const m = localStorage.getItem('df-month-mode'); if (['s', 'bi', 'thh'].includes(m)) mode = m; } catch (e) {}
+
+  function chips(p, mins) {
+    let list = [];
+    if (p.both != null) list = [{ v: 'Both venues', t: p.both }];
+    else {
+      const jum = p.n === "Jumu'ah";
+      p.bi.forEach(x => list.push({ v: (jum ? x.o + ' · ' : '') + 'Baytul Ihsaan', t: x.t }));
+      p.thh.forEach(x => list.push({ v: (jum ? x.o + ' · ' : '') + 'Hamilton Hub', t: x.t }));
+      list.sort((a, b) => a.t - b.t);
+    }
+    return list.map(c => {
+      const past = c.t <= mins;
+      return `<div class="chip${past ? ' past' : ''}"><span class="v">${c.v}</span><span class="ct">${fmtH(c.t)}</span><span class="in">${past ? 'Passed' : 'in ' + dur(c.t - mins)}</span></div>`;
+    }).join('');
+  }
+
+  function renderNow() {
+    const el = $('#now');
+    if (T.idx < 0) {
+      el.innerHTML = `<div class="star" aria-hidden="true"></div><div class="inner"><p class="eyebrow">Outside this timetable</p><p class="now-meta">This sheet covers November 2026. Check Darul Fath for the current month's times.</p></div>`;
+      return;
+    }
+    const { idx, mins, P, ci } = T, day = DAYS[idx];
+    let focus, live;
+    if (ci < 0) { focus = P[0]; live = false; }
+    else if (P[ci].k === 'sunrise') { focus = P[2]; live = false; }
+    else { focus = P[ci]; live = true; }
+
+    let meta, foot;
+    if (live) {
+      meta = focus.k === 'maghrib' ? `Jamaat ${fmtH(focus.s)}` : `Started ${fmtH(focus.s)}`;
+      let nxt = P[ci + 1], tomorrow = false;
+      if (!nxt && DAYS[idx + 1]) { nxt = prayers(DAYS[idx + 1])[0]; tomorrow = true; }
+      if (!nxt) foot = 'Next: see the December timetable';
+      else {
+        const left = tomorrow ? (1440 - mins) + nxt.s : nxt.s - mins;
+        if (nxt.k === 'sunrise') foot = `Fajr time ends at sunrise, ${fmtH(nxt.s)} · in ${dur(left)}`;
+        else if (nxt.k === 'maghrib') foot = `Next: <b>Maghrib</b> jamaat ${fmtH(nxt.s)} · in ${dur(left)}`;
+        else foot = `Next: <b>${nxt.n}</b>${tomorrow ? ' tomorrow' : ''} starts ${fmtH(nxt.s)} · in ${dur(left)}`;
+      }
+    } else {
+      meta = `Starts ${fmtH(focus.s)} · in ${dur(focus.s - mins)}`;
+      foot = focus.k === 'fajr' ? `Sunrise ${fmtH(P[1].s)}` : `Sunrise was ${fmtH(P[1].s)} · Zawal ${fmtH(focus.zawal)}`;
+    }
+
+    el.innerHTML = `<div class="star" aria-hidden="true"></div><div class="inner">
+      <p class="eyebrow">${live ? 'Now' : 'Next prayer'} · ${WDL[day.wd]} ${day.d} November</p>
+      <div class="now-main"><h2>${focus.n}</h2><span class="ar" lang="ar" dir="rtl">${focus.ar}</span></div>
+      <p class="now-meta">${meta}</p>
+      <p class="lbl">Jamaat</p>
+      <div class="jam">${chips(focus, mins)}</div>
+      <p class="foot">${foot}</p></div>`;
+  }
+
+  function renderDay() {
+    const day = DAYS[sel], P = prayers(day);
+    $('#dayTitle').textContent = `${WDL[day.wd]} ${day.d} November`;
+    $('#dayHijri').textContent = hijri(day.d);
+    $('#prev').disabled = sel === 0;
+    $('#next').disabled = sel === DAYS.length - 1;
+    const isToday = T.idx === sel;
+    $('#dayTag').hidden = !isToday;
+    $('#todayBtn').hidden = T.idx < 0 || isToday;
+
+    const list = a => a.map(x => `<div>${fmtH(x.t)}${x.o ? `<span class="note">${x.o}</span>` : ''}</div>`).join('');
+    $('#dayBody').innerHTML = P.map((p, i) => {
+      let cls = '';
+      if (isToday && T.ci >= 0) cls = i < T.ci ? 'past' : (i === T.ci ? 'current' : '');
+      if (p.k === 'sunrise') cls += ' sunrise';
+      const name = `<td><span class="pname">${p.n}</span><span class="par" lang="ar" dir="rtl">${p.ar}</span></td>`;
+      if (p.k === 'sunrise') return `<tr class="${cls}">${name}<td>${fmtH(p.s)}</td><td colspan="2" class="span">Fajr time ends</td></tr>`;
+      if (p.k === 'maghrib') return `<tr class="${cls}">${name}<td class="dash">–</td><td colspan="2" class="span">${fmtH(p.both)}<span class="note">both venues</span></td></tr>`;
+      const start = fmtH(p.s) + (p.zawal != null ? `<span class="note">Zawal ${fmtT(p.zawal)}</span>` : '');
+      return `<tr class="${cls}">${name}<td>${start}</td><td>${list(p.bi)}</td><td>${list(p.thh)}</td></tr>`;
+    }).join('');
+  }
+
+  function renderMonth() {
+    document.querySelectorAll('#seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === mode)));
+    const pick = (day, forCompare) => {
+      if (mode === 's') return [day.fajr.s, day.sunrise, day.zuhr.s, day.asr.s, day.maghrib, day.isha.s];
+      const k = mode;
+      const z = (day.fri && !forCompare) ? (k === 'bi' ? 780 : 750) : day.zuhr[k];
+      return [day.fajr[k], day.sunrise, z, day.asr[k], day.maghrib, day.isha[k]];
+    };
+    let prev = null;
+    $('#monthBody').innerHTML = DAYS.map((day, i) => {
+      const v = pick(day, false), c = pick(day, true);
+      const cells = v.map((t, j) => {
+        let cls = '';
+        if (j === 2 && day.fri && mode !== 's') cls = 'jum';
+        else if (mode !== 's' && prev && j !== 1 && j !== 4 && c[j] !== prev[j]) cls = 'chg';
+        return `<td class="${cls}">${fmtC(t)}</td>`;
+      }).join('');
+      prev = (day.fri && prev) ? c.map((x, j) => j === 2 ? prev[2] : x) : c;
+      const rc = [i === T.idx ? 'is-today' : '', i === sel ? 'is-sel' : ''].join(' ').trim();
+      return `<tr class="${rc}" data-i="${i}" tabindex="0" aria-label="Open ${WDL[day.wd]} ${day.d} November"><td><span class="dn${day.fri ? ' fri' : ''}">${WD[day.wd]}</span>${day.d}</td>${cells}</tr>`;
+    }).join('');
+    $('#legend').innerHTML = mode === 's'
+      ? `<span>Times prayer starts · Maghrib shows jamaat</span><span>Tap a date to open it</span>`
+      : `<span><b>Bold</b> = jamaat time changes that day</span><span><span class="g">Gold</span> = Jumu'ah${mode === 'thh' ? ' (also 1:10pm)' : ''}</span><span>Tap a date to open it</span>`;
+  }
+
+  function select(i, scroll) {
+    sel = Math.max(0, Math.min(DAYS.length - 1, i));
+    renderDay(); renderMonth();
+    if (scroll) {
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      $('#day').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+
+  $('#prev').addEventListener('click', () => select(sel - 1));
+  $('#next').addEventListener('click', () => select(sel + 1));
+  $('#todayBtn').addEventListener('click', () => { if (T.idx >= 0) select(T.idx); });
+  $('#seg').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    mode = b.dataset.m;
+    try { localStorage.setItem('df-month-mode', mode); } catch (err) {}
+    renderMonth();
+  });
+  const body = $('#monthBody');
+  body.addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) select(+tr.dataset.i, true); });
+  body.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const tr = e.target.closest('tr'); if (!tr) return;
+    e.preventDefault(); select(+tr.dataset.i, true);
+  });
+
+  function tick() {
+    const before = T.idx;
+    T = todayInfo();
+    if (T.idx !== before) {
+      if (sel === before && T.idx >= 0) sel = T.idx;
+      renderMonth();
+    }
+    renderNow(); renderDay();
+  }
+
+  renderNow(); renderDay(); renderMonth();
+  setInterval(tick, 15000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+})();
+</script>
+<script>
+(function () {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+  }
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  var card = document.getElementById('install');
+  var btn = document.getElementById('installBtn');
+  var hint = document.getElementById('installHint');
+  if (standalone) return;
+  var deferred = null;
+  // Fallback hint if the browser never offers its own install prompt
+  var fallback = setTimeout(function () {
+    if (!deferred) { hint.textContent = 'In Chrome, tap \u22EE then Add to home screen or Install app'; card.hidden = false; }
+  }, 4000);
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    clearTimeout(fallback);
+    hint.textContent = 'Opens like an app and works without signal';
+    btn.hidden = false;
+    card.hidden = false;
+  });
+  btn.addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function () { deferred = null; btn.hidden = true; card.hidden = true; });
+  });
+  window.addEventListener('appinstalled', function () { card.hidden = true; });
+})();
+</script>
+</body>
+</html>
